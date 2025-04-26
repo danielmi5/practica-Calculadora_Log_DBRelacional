@@ -6,27 +6,19 @@ import es.iesraprog2425.pruebaes.app.GestorInicio
 import es.iesraprog2425.pruebaes.service.GestorLogs
 import es.iesraprog2425.pruebaes.service.GestorOperaciones
 import es.iesraprog2425.pruebaes.ui.Consola
+import es.iesraprog2425.pruebaes.utils.BaseDatos
 import es.iesraprog2425.pruebaes.utils.Ficheros
 import java.sql.*
 
 
 fun main() {
-    //Conexión Base de datos
-
     val url = "jdbc:h2:~/bdH2/test"
     val usuario = "user"
-    val contraseña = ""
-
-    try {
-        Class.forName("org.h2.Driver")
-        val conexion = DriverManager.getConnection(url, usuario, contraseña)
-        println("Conexión exitosa")
-        conexion.close()
-    } catch (e: SQLException) {
-        println("Error en la conexión: ${e.message}")
-    } catch (e: ClassNotFoundException) {
-        println("No se encontró el driver JDBC: ${e.message}")
-    }
+    val contra = ""
+    val driver = "org.h2.Driver"
+    val bd = BaseDatos(url, driver, usuario, contra)
+    val conex = bd.conectarBD()
+    bd.cerrarBD(conex)
 }
 
 /*
