@@ -7,10 +7,30 @@ import es.iesraprog2425.pruebaes.service.GestorLogs
 import es.iesraprog2425.pruebaes.service.GestorOperaciones
 import es.iesraprog2425.pruebaes.ui.Consola
 import es.iesraprog2425.pruebaes.utils.Ficheros
+import java.sql.*
 
 
-fun main(args: Array <String>) {
-    val ui = Consola()
+fun main() {
+    //Conexión Base de datos
+
+    val url = "jdbc:h2:~/bdH2/test"
+    val usuario = "user"
+    val contraseña = ""
+
+    try {
+        Class.forName("org.h2.Driver")
+        val conexion = DriverManager.getConnection(url, usuario, contraseña)
+        println("Conexión exitosa")
+        conexion.close()
+    } catch (e: SQLException) {
+        println("Error en la conexión: ${e.message}")
+    } catch (e: ClassNotFoundException) {
+        println("No se encontró el driver JDBC: ${e.message}")
+    }
+}
+
+/*
+* val ui = Consola()
     val fich = Ficheros(ui)
     val gestorLog = GestorLogs(fich)
     val gestorInicio = GestorInicio(ui, fich, gestorLog)
@@ -27,6 +47,4 @@ fun main(args: Array <String>) {
 
 
     ui.mostrar("FIN DEL PROGRAMA")
-
-}
-
+    * */
