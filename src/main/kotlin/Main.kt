@@ -3,12 +3,12 @@ package es.iesraprog2425.pruebaes
 import es.iesraprog2425.pruebaes.app.Aplicacion
 import es.iesraprog2425.pruebaes.model.Calculadora
 import es.iesraprog2425.pruebaes.app.GestorInicio
+import es.iesraprog2425.pruebaes.model.Log
 import es.iesraprog2425.pruebaes.service.GestorLogs
 import es.iesraprog2425.pruebaes.service.GestorOperaciones
 import es.iesraprog2425.pruebaes.ui.Consola
 import es.iesraprog2425.pruebaes.utils.BaseDatos
 import es.iesraprog2425.pruebaes.utils.Ficheros
-import java.sql.*
 
 
 fun main() {
@@ -17,8 +17,11 @@ fun main() {
     val contra = ""
     val driver = "org.h2.Driver"
     val bd = BaseDatos(url, driver, usuario, contra)
-    val conex = bd.conectarBD()
-    bd.cerrarBD(conex)
+    bd.conectarBD()
+
+    bd.insertarDatosTabla(Log::class.simpleName.toString(), listOf("12-12-2001", "ERROR", "12x12", "144"), listOf("Fecha", "TipoLog", "Operacion", "Resultado"))
+
+    bd.cerrarBD()
 }
 
 /*
