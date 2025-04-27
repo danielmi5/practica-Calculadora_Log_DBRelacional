@@ -11,7 +11,7 @@ import es.iesraprog2425.pruebaes.utils.BaseDatos
 import es.iesraprog2425.pruebaes.utils.Ficheros
 
 
-fun main() {
+fun main(args: Array<String>) {
     val url = "jdbc:h2:~/bdH2/test"
     val usuario = "user"
     val contra = ""
@@ -19,7 +19,7 @@ fun main() {
     val bd = BaseDatos(url, driver, usuario, contra)
     bd.conectarBD()
 
-    bd.insertarDatosTabla(Log::class.simpleName.toString(), listOf("12-12-2001", "ERROR", "12x12", "144"), listOf("Fecha", "TipoLog", "Operacion", "Resultado"))
+    
 
     bd.cerrarBD()
 }

@@ -1,5 +1,7 @@
 package es.iesraprog2425.pruebaes.utils
 
+import es.iesraprog2425.pruebaes.model.Log
+import es.iesraprog2425.pruebaes.model.TipoLog
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
@@ -54,4 +56,27 @@ class BaseDatos(private val url: String, private val driver: String, private val
         stm.executeUpdate()
     }
 
+    override fun insertarMultiplesDatosTabla(nombreTabla: String, listaValores: List<List<Any>>, listaColumnasAInsertar: List<String>, seSobrescribe: Boolean
+    ) {
+        if (seSobrescribe) eliminarDatosTabla(nombreTabla)
+
+        //VARIOS INSERT NO MUY BIEN ÓPTIMO - PERO PARA AHORRARME LÍNEAS UTILIZO LA FUNCIÓN DE ARRIBA
+        //TODO: PLANTEAR SI UTILIZAR UN SOLO INSERT...
+        for (valores in listaValores) insertarDatosTabla(nombreTabla, valores, listaColumnasAInsertar)
+
+    }
+
+    override fun obtenerDatosTabla(nombreTabla: String): List<Log> { // TODO: Devolver consulta y obtener los datos en otra clase, para permitir escalabilidad
+        val logs = mutableListOf<Log>()
+        val statement = conexion?.createStatement()
+        val consulta = statement?.executeQuery("SELECT * FROM $nombreTabla") ?: throw SQLException("No se pudo mantener la conexión")
+        while (consulta.next()) {
+            val fecha = consulta.getString("fecha")
+            val hora = consulta.getString("hora")
+            val tipoLog = consulta.getString("tipolog")
+            val registro = consulta.getString("registro")
+            logs.add(Log(fecha, hora, TipoLog.obtenerTipo(tipoLog), registro))
+        }
+        return logs
+    }
 }

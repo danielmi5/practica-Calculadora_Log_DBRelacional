@@ -2,6 +2,7 @@ package es.iesraprog2425.pruebaes.app
 
 
 import es.iesraprog2425.pruebaes.model.Operadores
+import es.iesraprog2425.pruebaes.model.TipoLog
 
 import es.iesraprog2425.pruebaes.service.ServiceLog
 import es.iesraprog2425.pruebaes.service.ServiceOperaciones
@@ -13,21 +14,25 @@ class Aplicacion(private val rutaFichero: String, private val gestorOperaciones:
     fun iniciar() {
         ui.pausar()
 
-        var registro = ""
+        var tipoRegistro = TipoLog.OPERACION
+        var msj = ""
         do {
             try {
                 ui.limpiarPantalla()
                 val lineaResultado = gestorOperaciones.realizarOperacion()
                 ui.mostrar(lineaResultado)
-                registro = "OPERACIÓN - " + lineaResultado
+                tipoRegistro = TipoLog.OPERACION
+                msj = lineaResultado
             } catch (e: NumberFormatException) {
                 ui.mostrarError(e.message ?: "Se ha producido un error!")
-                registro = "ERROR - " + e.message.toString()
+                tipoRegistro = TipoLog.OPERACION
+                msj = e.message.toString()
             } catch (e: InfoCalcException) {
                 ui.mostrarError(e.message ?: "Se ha producido un error!")
-                registro = "ERROR - " + e.message.toString()
+                tipoRegistro = TipoLog.OPERACION
+                msj = e.message.toString()
             } finally {
-                gestorLog.añadirRegistro(rutaFichero, registro)
+                gestorLog.añadirRegistro(rutaFichero, tipoRegistro, msj)
             }
         } while (ui.preguntar())
         ui.limpiarPantalla()
@@ -40,17 +45,19 @@ class Aplicacion(private val rutaFichero: String, private val gestorOperaciones:
         val num2 = triple.second
         val operador = triple.third
         ui.pausar()
-
-        var registro = ""
+        var tipoRegistro = TipoLog.OPERACION
+        var msj = ""
         try {
             val lineaResultado = gestorOperaciones.realizarOperacion(num1, num2, operador)
             ui.mostrar(lineaResultado)
-            registro = "OPERACIÓN - " + lineaResultado
+            tipoRegistro = TipoLog.OPERACION
+            msj = lineaResultado
         } catch (e: Exception) {
             ui.mostrarError(e.message ?: "Se ha producido un error!")
-            registro = "ERROR - " + e.message.toString()
+            tipoRegistro = TipoLog.OPERACION
+            msj = e.message.toString()
         } finally {
-            gestorLog.añadirRegistro(rutaFichero, registro)
+            gestorLog.añadirRegistro(rutaFichero, tipoRegistro, msj)
         }
 
         if (ui.preguntar()) {
