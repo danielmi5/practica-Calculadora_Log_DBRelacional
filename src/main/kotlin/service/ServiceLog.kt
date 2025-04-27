@@ -12,4 +12,5 @@ interface ServiceLog {
     fun obtenerLogsUltimoLog(enBaseDatos: Boolean = false): List<Log>
     fun añadirNuevoRegistro(tipoRegistro: TipoLog, msj: String)
     fun subirLogsABaseDatos(listaLog: List<Log>)
+    fun obtenerLogsActuales(): List<Log>
 }

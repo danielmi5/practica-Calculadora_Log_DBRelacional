@@ -5,12 +5,12 @@ import es.iesraprog2425.pruebaes.utils.GestionBaseDeDatos
 import es.iesraprog2425.pruebaes.utils.Utils.mapearValores
 
 class RepositorioLogBD(val baseDeDatos: GestionBaseDeDatos): RepositorioLog {
-    init {
-        baseDeDatos.conectarBD()
-    }
-
     override fun subirLogs(listaLogs: List<Log>){
+        baseDeDatos.conectarBD()
+
         baseDeDatos.insertarMultiplesDatosTabla("log", listaLogs.map { it.mapearValores() }, Log.obtenerPropiedades(), false)
+
+        baseDeDatos.cerrarBD()
     }
 
     override fun subirLog(log: Log){

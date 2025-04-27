@@ -13,6 +13,8 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class GestorLogs(private val repoLogFich: FichLog, private val repoLogBaseDatos: RepositorioLog) : ServiceLog {
+    var logsAntesDeUtilizar: List<Log> = listOf()
+
     override fun crearFicheroLog(ruta: String) {
         val fechaActual = LocalDateTime.now().format(formateo)
         val nombreLog = "$ruta/log$fechaActual.txt"
@@ -21,6 +23,7 @@ class GestorLogs(private val repoLogFich: FichLog, private val repoLogBaseDatos:
 
     override fun guardarRutaFicheroLog(ruta: String) {
         repoLogFich.guardarRutaLog(ruta)
+        logsAntesDeUtilizar = obtenerLogsUltimoLog()
     }
 
 
@@ -57,7 +60,15 @@ class GestorLogs(private val repoLogFich: FichLog, private val repoLogBaseDatos:
         return listaLogs
     }
 
-
+    override fun obtenerLogsActuales(): List<Log> {
+        val listaLog = mutableListOf<Log>()
+        val lista = obtenerLogsUltimoLog()
+        val numLogs = lista.size-logsAntesDeUtilizar.size
+        for (i in (lista.size-numLogs)..lista.size-1) {
+            listaLog.add(lista[i])
+        }
+        return listaLog
+    }
 
     companion object {
         val formateo = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")

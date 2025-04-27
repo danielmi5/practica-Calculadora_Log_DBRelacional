@@ -85,9 +85,11 @@ class Aplicacion(private val gestorOperaciones: ServiceOperaciones, private val 
 
     private fun pedirGuardadoEnBD(){
         if (ui.preguntar("¿Quieres guardar los registros en la base de datos? (s/n): ")){
-            val lineas = gestorLog.obtenerLogsUltimoLog()
-            gestorLog.subirLogsABaseDatos(lineas)
-            ui.mostrar("Se han subido los logs correctamente")
+            val lineas = gestorLog.obtenerLogsActuales()
+            if (lineas.isEmpty()) ui.mostrar("No hay registros existentes para subir...") else {
+                gestorLog.subirLogsABaseDatos(lineas)
+                ui.mostrar("Se han subido los logs correctamente")
+            }
         }
     }
 
