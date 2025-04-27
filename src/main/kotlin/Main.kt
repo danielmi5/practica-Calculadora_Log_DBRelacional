@@ -3,12 +3,15 @@ package es.iesraprog2425.pruebaes
 import es.iesraprog2425.pruebaes.app.Aplicacion
 import es.iesraprog2425.pruebaes.model.Calculadora
 import es.iesraprog2425.pruebaes.app.GestorInicio
+import es.iesraprog2425.pruebaes.data.RepositorioLogBD
+import es.iesraprog2425.pruebaes.data.RepositorioLogFich
 import es.iesraprog2425.pruebaes.model.Log
 import es.iesraprog2425.pruebaes.service.GestorLogs
 import es.iesraprog2425.pruebaes.service.GestorOperaciones
 import es.iesraprog2425.pruebaes.ui.Consola
 import es.iesraprog2425.pruebaes.utils.BaseDatos
 import es.iesraprog2425.pruebaes.utils.Ficheros
+import java.sql.Connection
 
 
 fun main(args: Array<String>) {
@@ -16,30 +19,43 @@ fun main(args: Array<String>) {
     val usuario = "user"
     val contra = ""
     val driver = "org.h2.Driver"
-    val bd = BaseDatos(url, driver, usuario, contra)
-    bd.conectarBD()
 
-    
-
-    bd.cerrarBD()
-}
-
-/*
-* val ui = Consola()
+    val ui = Consola()
     val fich = Ficheros(ui)
-    val gestorLog = GestorLogs(fich)
-    val gestorInicio = GestorInicio(ui, fich, gestorLog)
 
+    var bd: BaseDatos? = null
     try {
-        val ruta = gestorInicio.comprobarRuta(args)
-        val app = Aplicacion(ruta, GestorOperaciones(ui, Calculadora()), ui, gestorLog)
+        bd = BaseDatos(url, driver, usuario, contra)
+        val repoFich = RepositorioLogFich(fich)
+        val repoBD = RepositorioLogBD(bd)
+        val gestorLog = GestorLogs(repoFich, repoBD)
+        val gestorInicio = GestorInicio(ui, fich, gestorLog)
+        gestorInicio.comprobarRuta(args)
+        val app = Aplicacion(GestorOperaciones(ui, Calculadora()), ui, gestorLog)
         if (args.size == 4){
             app.iniciar(args[1], args[3], args[2])
         } else app.iniciar()
+
+
     } catch (e: Exception){
         ui.mostrarError(e.message.toString())
+
+    } finally {
+        if (bd is BaseDatos) {
+            bd.cerrarBD()
+        }
     }
 
 
     ui.mostrar("FIN DEL PROGRAMA")
+
+}
+
+/*
+*
+
+
+
+
+
     * */

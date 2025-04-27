@@ -7,30 +7,30 @@ import es.iesraprog2425.pruebaes.utils.GestionFicheros
 
 class GestorInicio(private val ui: IEntradaSalida, private val fich: GestionFicheros, private val gestorLog: ServiceLog) {
 
-    fun comprobarRuta(args : Array <String>): String{
+    fun comprobarRuta(args : Array <String>){
         when (args.size) {
             0 -> {
                 val ruta = RUTA_PREDETERMINADA
                 val rutaFichero = comprobarRuta(ruta)
-                return if (rutaFichero == null){
+                if (rutaFichero == null){
                     gestorLog.crearFicheroLog(ruta)
-                } else rutaFichero
+                } else gestorLog.guardarRutaFicheroLog(rutaFichero)
             }
             1 -> {
                 val ruta = args[0]
                 val rutaFichero = comprobarRuta(ruta)
-                return if (rutaFichero == null){
+                if (rutaFichero == null){
                     gestorLog.crearFicheroLog(ruta)
-                } else rutaFichero
+                } else gestorLog.guardarRutaFicheroLog(rutaFichero)
             }
 
             4 -> {
                 val ruta = args[0]
 
                 if (fich.existeFichero(ruta)) {
-                    return ruta
+                    gestorLog.guardarRutaFicheroLog(ruta)
                 } else if (fich.existeDirectorio(ruta)){
-                    return gestorLog.crearFicheroLog(ruta)
+                    gestorLog.crearFicheroLog(ruta)
                 } else throw IllegalArgumentException("Ruta no existente")
             }
             else -> {

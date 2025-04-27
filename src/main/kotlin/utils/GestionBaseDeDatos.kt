@@ -1,9 +1,8 @@
 package es.iesraprog2425.pruebaes.utils
 
 import es.iesraprog2425.pruebaes.model.Log
-import java.sql.PreparedStatement
 
-interface GestiónBaseDeDatos {
+interface GestionBaseDeDatos {
     fun conectarBD()
     fun cerrarBD()
     fun crearTabla(nombreTabla: String, columnas: List<Pair<String, String>>, clavePrimaria: Pair<String, String>? = null)

@@ -18,6 +18,7 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     implementation("com.h2database:h2:2.3.232")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.22")
 }
 
 tasks.test {

@@ -1,14 +1,16 @@
 package es.iesraprog2425.pruebaes.app
 
 
+import es.iesraprog2425.pruebaes.model.Log
 import es.iesraprog2425.pruebaes.model.Operadores
 import es.iesraprog2425.pruebaes.model.TipoLog
 
 import es.iesraprog2425.pruebaes.service.ServiceLog
 import es.iesraprog2425.pruebaes.service.ServiceOperaciones
 import es.iesraprog2425.pruebaes.ui.IEntradaSalida
+import es.iesraprog2425.pruebaes.utils.BaseDatos
 
-class Aplicacion(private val rutaFichero: String, private val gestorOperaciones: ServiceOperaciones, private val ui: IEntradaSalida, private val gestorLog: ServiceLog) {
+class Aplicacion(private val gestorOperaciones: ServiceOperaciones, private val ui: IEntradaSalida, private val gestorLog: ServiceLog) {
 
 
     fun iniciar() {
@@ -25,16 +27,18 @@ class Aplicacion(private val rutaFichero: String, private val gestorOperaciones:
                 msj = lineaResultado
             } catch (e: NumberFormatException) {
                 ui.mostrarError(e.message ?: "Se ha producido un error!")
-                tipoRegistro = TipoLog.OPERACION
+                tipoRegistro = TipoLog.ERROR
                 msj = e.message.toString()
             } catch (e: InfoCalcException) {
                 ui.mostrarError(e.message ?: "Se ha producido un error!")
-                tipoRegistro = TipoLog.OPERACION
+                tipoRegistro = TipoLog.ERROR
                 msj = e.message.toString()
             } finally {
-                gestorLog.añadirRegistro(rutaFichero, tipoRegistro, msj)
+                gestorLog.añadirNuevoRegistro(tipoRegistro, msj)
             }
         } while (ui.preguntar())
+        pedirGuardadoEnBD()
+        ui.pausar()
         ui.limpiarPantalla()
     }
 
@@ -54,15 +58,16 @@ class Aplicacion(private val rutaFichero: String, private val gestorOperaciones:
             msj = lineaResultado
         } catch (e: Exception) {
             ui.mostrarError(e.message ?: "Se ha producido un error!")
-            tipoRegistro = TipoLog.OPERACION
+            tipoRegistro = TipoLog.ERROR
             msj = e.message.toString()
         } finally {
-            gestorLog.añadirRegistro(rutaFichero, tipoRegistro, msj)
+            gestorLog.añadirNuevoRegistro(tipoRegistro, msj)
         }
 
         if (ui.preguntar()) {
             iniciar()
         } else{
+            pedirGuardadoEnBD()
             ui.pausar()
             ui.limpiarPantalla()
         }
@@ -78,6 +83,12 @@ class Aplicacion(private val rutaFichero: String, private val gestorOperaciones:
         return Triple(numero1, numero2, op)
     }
 
-
+    private fun pedirGuardadoEnBD(){
+        if (ui.preguntar("¿Quieres guardar los registros en la base de datos? (s/n): ")){
+            val lineas = gestorLog.obtenerLogsUltimoLog()
+            gestorLog.subirLogsABaseDatos(lineas)
+            ui.mostrar("Se han subido los logs correctamente")
+        }
+    }
 
 }
