@@ -1,7 +1,6 @@
 package es.iesraprog2425.pruebaes.app
 
 import es.iesraprog2425.pruebaes.model.Operadores
-import es.iesraprog2425.pruebaes.service.ServiceLog
 import es.iesraprog2425.pruebaes.ui.IEntradaSalida
 import es.iesraprog2425.pruebaes.utils.GestionFicheros
 

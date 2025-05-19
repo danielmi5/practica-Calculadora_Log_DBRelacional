@@ -6,7 +6,6 @@ import es.iesraprog2425.pruebaes.app.GestorInicio
 import es.iesraprog2425.pruebaes.service.GestorLogs
 import es.iesraprog2425.pruebaes.service.GestorOperaciones
 import es.iesraprog2425.pruebaes.ui.Consola
-import es.iesraprog2425.pruebaes.utils.Ficheros
 
 
 fun main(args: Array <String>) {
