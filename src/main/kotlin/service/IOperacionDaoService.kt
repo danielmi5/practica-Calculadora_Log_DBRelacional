@@ -6,8 +6,10 @@ interface IOperacionDaoService {
     fun crearOperacion(operacion: LogOperacion)
     fun obtenerOperacionPorFecha(fecha: String): List<LogOperacion>
     fun obtenerOperacionPorHora(hora: String): List<LogOperacion>
-    fun obtenerObtenerPorFechaYHora(fecha: String, hora: String): LogOperacion?
-    fun actualizar(operacion: LogOperacion)
-    fun eliminar(fecha: String, hora: String)
+    fun obtenerOperacionPorFechaYHora(fecha: String, hora: String): LogOperacion?
+    fun actualizarOperacion(operacion: LogOperacion): Boolean
+    fun eliminarOperacion(fecha: String, hora: String): Boolean
+    fun eliminarOperacionPorFecha(fecha: String): Boolean
+    fun eliminarOperacionPorHora(hora: String): Boolean
     fun obtenerOperaciones(): List<LogOperacion>
 }

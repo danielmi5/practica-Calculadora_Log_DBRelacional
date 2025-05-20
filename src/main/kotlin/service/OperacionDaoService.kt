@@ -5,30 +5,67 @@ import es.iesraprog2425.pruebaes.model.LogOperacion
 
 class OperacionDaoService(private val dao: IDao<LogOperacion>): IOperacionDaoService {
     override fun crearOperacion(operacion: LogOperacion) {
-        TODO("Not yet implemented")
+        dao.crear(operacion)
     }
 
     override fun obtenerOperacionPorFecha(fecha: String): List<LogOperacion> {
-        TODO("Not yet implemented")
+        require(fecha.isNotBlank()) { "La fecha no puede estar vacía." }
+        require(regexFecha.matches(fecha)) { "Formato de fecha no válido, debes usar 'dd-MM-yyyy'" }
+
+        return dao.obtenerPorFecha(fecha)
     }
 
     override fun obtenerOperacionPorHora(hora: String): List<LogOperacion> {
-        TODO("Not yet implemented")
+        require(hora.isNotBlank()) { "La hora no puede estar vacía." }
+        require(regexHora.matches(hora)) { "Formato de hora no válido, debes usar 'HH:MM:SS'" }
+
+        return dao.obtenerPorHora(hora)
     }
 
-    override fun obtenerObtenerPorFechaYHora(fecha: String, hora: String): LogOperacion? {
-        TODO("Not yet implemented")
+    override fun obtenerOperacionPorFechaYHora(fecha: String, hora: String): LogOperacion? {
+        require(fecha.isNotBlank()) { "La fecha no puede estar vacía." }
+        require(hora.isNotBlank()) { "La hora no puede estar vacía." }
+        require(regexFecha.matches(fecha)) { "Formato de fecha no válido, debes usar 'dd-MM-yyyy'" }
+        require(regexHora.matches(hora)) { "Formato de hora no válido, debes usar 'HH:MM:SS'" }
+
+        return dao.obtenerPorFechaYHora(fecha, hora)
     }
 
-    override fun actualizar(operacion: LogOperacion) {
-        TODO("Not yet implemented")
+
+    override fun eliminarOperacion(fecha: String, hora: String): Boolean {
+        require(fecha.isNotBlank()) { "La fecha no puede estar vacía." }
+        require(hora.isNotBlank()) { "La hora no puede estar vacía." }
+        require(regexFecha.matches(fecha)) { "Formato de fecha no válido, debes usar 'dd-MM-yyyy'" }
+        require(regexHora.matches(hora)) { "Formato de hora no válido, debes usar 'HH:MM:SS'" }
+
+        return dao.eliminar(fecha, hora)
     }
 
-    override fun eliminar(fecha: String, hora: String) {
-        TODO("Not yet implemented")
+    override fun eliminarOperacionPorFecha(fecha: String): Boolean {
+        require(fecha.isNotBlank()) { "La fecha no puede estar vacía." }
+        require(regexFecha.matches(fecha)) { "Formato de fecha no válido, debes usar 'dd-MM-yyyy'" }
+
+        return dao.eliminarPorFecha(fecha)
+    }
+
+    override fun eliminarOperacionPorHora(hora: String): Boolean {
+        require(hora.isNotBlank()) { "La hora no puede estar vacía." }
+        require(regexHora.matches(hora)) { "Formato de hora no válido, debes usar 'HH:MM:SS'" }
+
+        return dao.eliminarPorHora(hora)
     }
 
     override fun obtenerOperaciones(): List<LogOperacion> {
-        TODO("Not yet implemented")
+        return dao.obtenerTodos()
     }
+
+    override fun actualizarOperacion(operacion: LogOperacion): Boolean {
+        return false
+    }
+
+    companion object{
+        val regexFecha = Regex("""\d{2}-\d{2}-\d{4}""")
+        val regexHora = Regex("""\d{2}:\d{2}:\d{2}""")
+    }
+
 }

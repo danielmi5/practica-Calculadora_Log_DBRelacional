@@ -3,11 +3,11 @@ package es.iesraprog2425.pruebaes.app
 
 import es.iesraprog2425.pruebaes.model.Operadores
 
-import es.iesraprog2425.pruebaes.service.ServiceLog
+
 import es.iesraprog2425.pruebaes.service.ServiceOperaciones
 import es.iesraprog2425.pruebaes.ui.IEntradaSalida
 
-class Aplicacion(private val rutaFichero: String, private val gestorOperaciones: ServiceOperaciones, private val ui: IEntradaSalida, private val gestorLog: ServiceLog) {
+class Aplicacion(private val rutaFichero: String, private val gestorOperaciones: ServiceOperaciones, private val ui: IEntradaSalida) {
 
 
     fun iniciar() {
@@ -27,7 +27,7 @@ class Aplicacion(private val rutaFichero: String, private val gestorOperaciones:
                 ui.mostrarError(e.message ?: "Se ha producido un error!")
                 registro = "ERROR - " + e.message.toString()
             } finally {
-                gestorLog.añadirRegistro(rutaFichero, registro)
+                //gestorLog.añadirRegistro(rutaFichero, registro)
             }
         } while (ui.preguntar())
         ui.limpiarPantalla()
@@ -50,7 +50,7 @@ class Aplicacion(private val rutaFichero: String, private val gestorOperaciones:
             ui.mostrarError(e.message ?: "Se ha producido un error!")
             registro = "ERROR - " + e.message.toString()
         } finally {
-            gestorLog.añadirRegistro(rutaFichero, registro)
+            //gestorLog.añadirRegistro(rutaFichero, registro)
         }
 
         if (ui.preguntar()) {
