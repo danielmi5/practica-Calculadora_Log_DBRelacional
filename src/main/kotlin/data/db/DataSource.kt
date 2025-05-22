@@ -7,7 +7,7 @@ import com.zaxxer.hikari.HikariConfig
 
 object DataSource {
 
-    private const val JDBC_URL = "jdbc:h2:./data/tienda"
+    private const val JDBC_URL = "jdbc:h2:./data/logs"
     private const val USER = "user"
     private const val PASSWORD = ""
     private const val DRIVER = "org.h2.Driver"

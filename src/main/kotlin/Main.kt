@@ -9,6 +9,7 @@ import es.iesraprog2425.pruebaes.service.ErrorDaoService
 import es.iesraprog2425.pruebaes.service.GestorOperacionesService
 import es.iesraprog2425.pruebaes.service.OperacionDaoService
 import es.iesraprog2425.pruebaes.ui.Consola
+import es.iesraprog2425.pruebaes.utils.BaseDatos
 
 
 fun main(args: Array <String>) {
@@ -22,6 +23,7 @@ fun main(args: Array <String>) {
     val app = Aplicacion(gestorOperaciones, ui, operacionDaoService, errorDaoService)
 
     try {
+        if (ui.preguntar("¿Quieres borrar todos los datos de la base de datos (s/n)?")) BaseDatos.crearBaseDeDatos(true) else BaseDatos.crearBaseDeDatos()
         app.iniciar()
     } catch (e: Exception){
         ui.mostrar("ERROR CRÍTICO")

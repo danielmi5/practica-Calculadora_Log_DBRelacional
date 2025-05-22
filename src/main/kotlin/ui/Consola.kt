@@ -14,7 +14,7 @@ class Consola : IEntradaSalida {
     }
 
     override fun pedirInfo(msj: String): String {
-        if (msj.isNotEmpty()) mostrar(msj, false)
+        if (msj.isNotEmpty()) mostrar(msj + " >>", false)
         return scanner.nextLine().trim()
     }
 

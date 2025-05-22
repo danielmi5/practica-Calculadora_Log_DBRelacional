@@ -15,6 +15,8 @@ class ErrorDaoH2(private val ds: DataSource) : IDao<LogError>{
                 stmt.setString(1, operacion.fecha)
                 stmt.setString(2, operacion.hora)
                 stmt.setString(3, operacion.msjError)
+
+                stmt.execute()
                 }
             }
         } catch (e: SQLException){
@@ -103,7 +105,6 @@ class ErrorDaoH2(private val ds: DataSource) : IDao<LogError>{
     }
 
     override fun eliminar(fecha: String, hora: String): Boolean {
-        val operaciones = mutableListOf<LogOperacion>()
         val sql = "DELETE FROM ERROR WHERE fecha = ? AND hora = ?"
         try {
             ds.connection.use { conn ->

@@ -3,6 +3,7 @@ package es.iesraprog2425.pruebaes.app
 
 import es.iesraprog2425.pruebaes.model.Log
 import es.iesraprog2425.pruebaes.model.LogError
+import es.iesraprog2425.pruebaes.model.LogOperacion
 import es.iesraprog2425.pruebaes.model.Operadores
 import es.iesraprog2425.pruebaes.service.IErrorDaoService
 import es.iesraprog2425.pruebaes.service.IOperacionDaoService
@@ -17,12 +18,11 @@ class Aplicacion(private val gestorOperaciones: OperacionesService, private val 
     fun iniciar() {
         ui.pausar()
         var logActual: Log? = null
-        var msjError = ""
         do {
             try {
                 ui.limpiarPantalla()
                 val logResultado = gestorOperaciones.realizarOperacion()
-                ui.mostrar(logResultado.toString())
+                ui.mostrar(logResultado.obtenerLog())
                 logActual = logResultado
             } catch (e: NumberFormatException) {
                 ui.mostrarError(e.message ?: "Se ha producido un error!")
@@ -30,8 +30,15 @@ class Aplicacion(private val gestorOperaciones: OperacionesService, private val 
             } catch (e: InfoCalcException) {
                 ui.mostrarError(e.message ?: "Se ha producido un error!")
                 logActual = LogError.crear(e.message.toString())
+
+            } catch (e: Exception) {
+                ui.mostrarError(e.message ?: "Se ha producido un error!")
+                logActual = LogError.crear(e.message.toString())
             } finally {
-                //gestorLog.añadirRegistro(rutaFichero, registro)
+                when(logActual){
+                    is LogOperacion -> operacionDaoService.crearOperacion(logActual)
+                    is LogError -> errorDaoService.crearError(logActual)
+                }
             }
         } while (ui.preguntar())
         ui.limpiarPantalla()

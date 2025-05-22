@@ -19,7 +19,11 @@ class OperacionDaoH2(private val ds: DataSource): IDao<LogOperacion>{
                 stmt.setString(4, operacion.operador.name)
                 stmt.setDouble(5, operacion.num2)
                 stmt.setDouble(6, operacion.resultado)
-                }
+
+                stmt.execute()
+            }
+
+
             }
         } catch (e: SQLException){
             throw SQLException("No se ha podido insertar el operación ${e.message}")
@@ -27,7 +31,7 @@ class OperacionDaoH2(private val ds: DataSource): IDao<LogOperacion>{
             throw SQLException("Se ha terminado el tiempo de espera para insertar la operación ${e.message}")
         }
 
-}
+    }
 
     override fun obtenerPorFecha(fecha: String): List<LogOperacion> {
         val operaciones = mutableListOf<LogOperacion>()
@@ -114,7 +118,6 @@ class OperacionDaoH2(private val ds: DataSource): IDao<LogOperacion>{
     }
 
     override fun eliminar(fecha: String, hora: String): Boolean {
-        val operaciones = mutableListOf<LogOperacion>()
         val sql = "DELETE FROM OPERACION WHERE fecha = ? AND hora = ?"
         try {
             ds.connection.use { conn ->
