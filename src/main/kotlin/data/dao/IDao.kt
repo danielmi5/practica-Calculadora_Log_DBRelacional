@@ -7,7 +7,7 @@ interface IDao<T> {
     fun obtenerPorFechaYHora(fecha: String, hora: String): T?
     fun actualizar(objeto: T)
     fun eliminar(fecha: String, hora: String): Boolean
-    fun eliminarPorFecha(fecha: String): Boolean
-    fun eliminarPorHora(hora: String): Boolean
+    fun eliminarPorFecha(fecha: String): Int
+    fun eliminarPorHora(hora: String): Int
     fun obtenerTodos(): List<T>
 }

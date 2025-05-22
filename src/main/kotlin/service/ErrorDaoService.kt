@@ -43,14 +43,14 @@ class ErrorDaoService(private val dao: IDao<LogError>): IErrorDaoService{
         return dao.eliminar(fecha, hora)
     }
 
-    override fun eliminarErrorPorFecha(fecha: String): Boolean {
+    override fun eliminarErrorPorFecha(fecha: String): Int {
         require(fecha.isNotBlank()) { "La fecha no puede estar vacía." }
         require(regexFecha.matches(fecha)) { "Formato de fecha no válido. Debes usar 'dd-MM-yyyy'" }
 
         return dao.eliminarPorFecha(fecha)
     }
 
-    override fun eliminarErrorPorHora(hora: String): Boolean {
+    override fun eliminarErrorPorHora(hora: String): Int {
         require(hora.isNotBlank()) { "La hora no puede estar vacía." }
         require(regexHora.matches(hora)) { "Formato de hora no válido. Debes usar 'HH:MM:SS'" }
 

@@ -41,14 +41,14 @@ class OperacionDaoService(private val dao: IDao<LogOperacion>): IOperacionDaoSer
         return dao.eliminar(fecha, hora)
     }
 
-    override fun eliminarOperacionPorFecha(fecha: String): Boolean {
+    override fun eliminarOperacionPorFecha(fecha: String): Int {
         require(fecha.isNotBlank()) { "La fecha no puede estar vacía." }
         require(regexFecha.matches(fecha)) { "Formato de fecha no válido, debes usar 'dd-MM-yyyy'" }
 
         return dao.eliminarPorFecha(fecha)
     }
 
-    override fun eliminarOperacionPorHora(hora: String): Boolean {
+    override fun eliminarOperacionPorHora(hora: String): Int {
         require(hora.isNotBlank()) { "La hora no puede estar vacía." }
         require(regexHora.matches(hora)) { "Formato de hora no válido, debes usar 'HH:MM:SS'" }
 

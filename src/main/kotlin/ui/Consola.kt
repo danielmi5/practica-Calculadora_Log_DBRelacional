@@ -30,6 +30,12 @@ class Consola : IEntradaSalida {
         return pedirInfo(msj).toIntOrNull() ?: 0
     }
 
+    override fun pedirTipoLog(): String? {
+        val opciones = listOf("ERROR", "OPERACION")
+        val seleccion = pedirInfo("Selecciona el tipo de log (ERROR o OPERACION | '' Si no quieres 'filtrar')").uppercase().replace("Ó","O")
+        return if (seleccion in opciones) seleccion else null
+    }
+
     override fun preguntar(msj: String): Boolean {
         do {
             val respuesta = pedirInfo(msj).lowercase()
@@ -56,7 +62,8 @@ class Consola : IEntradaSalida {
         pedirInfo("Introduce ENTER para continuar...")
     }
 
-    override fun mostrarLista(lista: List<String>) {
+    override fun mostrarLista(msj: String, lista: List<String>) {
+        mostrar(msj+"\n"+"-".repeat(msj.length*2))
         for (s in lista) {
             mostrar(s)
         }

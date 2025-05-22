@@ -135,13 +135,13 @@ class OperacionDaoH2(private val ds: DataSource): IDao<LogOperacion>{
 
     }
 
-    override fun eliminarPorFecha(fecha: String): Boolean {
+    override fun eliminarPorFecha(fecha: String): Int {
         val sql = "DELETE FROM OPERACION WHERE fecha = ?"
         try {
             ds.connection.use { conn ->
                 conn.prepareStatement(sql).use { stmt ->
                     stmt.setString(1, fecha)
-                    return stmt.executeUpdate() > 0
+                    return stmt.executeUpdate()
                 }
             }
         } catch (e: SQLException) {
@@ -151,13 +151,13 @@ class OperacionDaoH2(private val ds: DataSource): IDao<LogOperacion>{
         }
     }
 
-    override fun eliminarPorHora(hora: String): Boolean {
+    override fun eliminarPorHora(hora: String): Int {
         val sql = "DELETE FROM OPERACION WHERE hora = ?"
         try {
             ds.connection.use { conn ->
                 conn.prepareStatement(sql).use { stmt ->
                     stmt.setString(1, hora)
-                    return stmt.executeUpdate() > 0
+                    return stmt.executeUpdate()
                 }
             }
         } catch (e: SQLException) {

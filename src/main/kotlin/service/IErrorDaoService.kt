@@ -10,7 +10,7 @@ interface IErrorDaoService {
     fun obtenerErrorPorFechaYHora(fecha: String, hora: String): LogError?
     fun actualizarError(operacion: LogError): Boolean
     fun eliminarError(fecha: String, hora: String): Boolean
-    fun eliminarErrorPorFecha(fecha: String): Boolean
-    fun eliminarErrorPorHora(hora: String): Boolean
+    fun eliminarErrorPorFecha(fecha: String): Int
+    fun eliminarErrorPorHora(hora: String): Int
     fun obtenerErrores(): List<LogError>
 }

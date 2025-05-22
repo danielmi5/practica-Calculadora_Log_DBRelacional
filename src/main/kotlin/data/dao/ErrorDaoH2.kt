@@ -122,13 +122,13 @@ class ErrorDaoH2(private val ds: DataSource) : IDao<LogError>{
 
     }
 
-    override fun eliminarPorFecha(fecha: String): Boolean {
+    override fun eliminarPorFecha(fecha: String): Int {
         val sql = "DELETE FROM ERROR WHERE fecha = ?"
         try {
             ds.connection.use { conn ->
                 conn.prepareStatement(sql).use { stmt ->
                     stmt.setString(1, fecha)
-                    return stmt.executeUpdate() > 0
+                    return stmt.executeUpdate()
                 }
             }
         } catch (e: SQLException) {
@@ -138,13 +138,13 @@ class ErrorDaoH2(private val ds: DataSource) : IDao<LogError>{
         }
     }
 
-    override fun eliminarPorHora(hora: String): Boolean {
+    override fun eliminarPorHora(hora: String): Int {
         val sql = "DELETE FROM ERROR WHERE hora = ?"
         try {
             ds.connection.use { conn ->
                 conn.prepareStatement(sql).use { stmt ->
                     stmt.setString(1, hora)
-                    return stmt.executeUpdate() > 0
+                    return stmt.executeUpdate()
                 }
             }
         } catch (e: SQLException) {
@@ -157,7 +157,7 @@ class ErrorDaoH2(private val ds: DataSource) : IDao<LogError>{
 
 
     override fun obtenerTodos(): List<LogError> {
-        val operaciones = mutableListOf<LogError>()
+        val errores = mutableListOf<LogError>()
         val sql = "SELECT * FROM ERROR"
         try {
             ds.connection.use { conn -> conn.createStatement().use { stmt ->
@@ -167,7 +167,7 @@ class ErrorDaoH2(private val ds: DataSource) : IDao<LogError>{
                         val fech = rs.getString(1)
                         val hora = rs.getString(2)
                         val msjError = rs.getString(3)
-                        LogError(msjError, fech, hora)
+                        errores.add(LogError(msjError, fech, hora))
                     }
                 }
             }
@@ -177,7 +177,7 @@ class ErrorDaoH2(private val ds: DataSource) : IDao<LogError>{
         } catch (e: SQLTimeoutException){
             throw SQLException("Se ha terminado el tiempo de espera para obtener los errores ${e.message}")
         }
-        return operaciones
+        return errores
     }
 
     override fun actualizar(error: LogError) {
