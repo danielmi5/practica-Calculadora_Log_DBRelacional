@@ -12,9 +12,21 @@ import es.iesraprog2425.pruebaes.service.OperacionDaoService
 import es.iesraprog2425.pruebaes.ui.Consola
 import es.iesraprog2425.pruebaes.utils.BaseDatos
 
-
-fun main(args: Array <String>) {
-//TODO: LA OPCIÓN dEL MENÚ DE ELIMINAR, DAR LA OPCIÓN DE NO PASAR NADA POR EL VALOR - POR EJEMPLO -> SI NO QUIERE ELIMINAR POR FECHA, SE ELIMINARÍA POR HORA Y ASÍ
+/**
+ * Punto de entrada principal de la aplicación.
+ *
+ * Esta función inicializa los componentes necesarios para la aplicación,
+ * incluyendo la interfaz de usuario, los servicios de cálculo y gestión
+ * de operaciones, acceso a datos y servicios de logs.
+ *
+ * El flujo principal realiza lo siguiente:
+ * - Pregunta al usuario si desea borrar todos los datos de la base de datos.
+ * - Según la respuesta, crea o resetea la base de datos.
+ * - Inicia la aplicación.
+ * - Captura excepciones críticas y las muestra por consola.
+ * - Finalmente, muestra un mensaje indicando el cierre de la calculadora.
+ */
+fun main() {
     val ui = Consola()
     val calculadora = CalculadoraService()
     val gestorOperaciones = GestorOperacionesService(ui,calculadora)

@@ -12,12 +12,30 @@ import es.iesraprog2425.pruebaes.service.OperacionesService
 import es.iesraprog2425.pruebaes.ui.IEntradaSalida
 import java.sql.SQLException
 
+/**
+ * Clase principal de la aplicación que gestiona la interacción con el usuario y la lógica de negocio.
+ *
+ * Esta clase coordina la ejecución de operaciones a través de [gestorOperaciones], la interacción
+ * con el usuario mediante la interfaz [ui], y el manejo de logs mediante [logsDaoService].
+ *
+ * @property gestorOperaciones Servicio encargado de realizar operaciones de cálculo.
+ * @property ui Interfaz para la entrada y salida de datos con el usuario.
+ * @property logsDaoService Servicio para la gestión de logs (registro, obtención, eliminación).
+ */
+
 class Aplicacion(
     private val gestorOperaciones: OperacionesService,
     private val ui: IEntradaSalida,
     private val logsDaoService: ILogDaoService
 ) {
 
+    /**
+     * Ejecuta la calculadora, mostrando la interfaz al usuario y gestionando la captura
+     * de errores mediante logs.
+     *
+     * Permite realizar operaciones en un ciclo hasta que el usuario decida salir.
+     * Captura y registra errores de distintos tipos.
+     */
     private fun ejecutarCalculadora() {
         ui.pausar()
         var logActual: Log? = null
@@ -44,6 +62,12 @@ class Aplicacion(
         ui.limpiarPantalla()
     }
 
+    /**
+     * Inicia la aplicación mostrando el menú principal con opciones para ejecutar
+     * la calculadora, gestionar logs o salir.
+     *
+     * El menú se muestra en bucle hasta que el usuario decide salir.
+     */
     fun iniciar(){
         var salir = false
         while (!salir) {
@@ -64,7 +88,12 @@ class Aplicacion(
 
 
 
-
+    /**
+     * Muestra el menú de gestión de logs con varias opciones para consultar, eliminar
+     * y listar logs según diferentes criterios.
+     *
+     * El menú se repite hasta que el usuario decide salir.
+     */
     private fun menuGestionarLogs() {
         var salir = false
         while (!salir) {
@@ -103,6 +132,12 @@ class Aplicacion(
         }
     }
 
+    /**
+     * Solicita al usuario una fecha y muestra los logs correspondientes a dicha fecha.
+     *
+     * Valida el formato de la fecha y solicita el tipo de log a mostrar.
+     * Muestra un mensaje si no existen logs para la fecha indicada.
+     */
     private fun mostrarLogPorFecha() {
         val fecha = ui.pedirInfo("Introduce la fecha que quieras buscar Logs (formato: dd-MM-yyyy)")
         require(fecha.matches(Regex("""\d{2}-\d{2}-\d{4}"""))) { "La fecha debe tener el formato dd-MM-yyyy" }
@@ -116,6 +151,12 @@ class Aplicacion(
         }
     }
 
+    /**
+     * Solicita al usuario una hora y muestra los logs correspondientes a dicha hora.
+     *
+     * Valida el formato de la hora y solicita el tipo de log a mostrar.
+     * Muestra un mensaje si no existen logs para la hora indicada.
+     */
     private fun mostrarLogPorHora() {
         val hora = ui.pedirInfo("Introduce la hora que quieras buscar Logs (formato: HH:mm:ss)")
         require(hora.matches(Regex("""\d{2}:\d{2}:\d{2}"""))) { "La hora debe tener el formato HH:mm:ss" }
@@ -129,6 +170,12 @@ class Aplicacion(
         }
     }
 
+    /**
+     * Solicita al usuario una fecha y una hora para mostrar un log específico.
+     *
+     * Valida los formatos y solicita el tipo de log a mostrar.
+     * Muestra un mensaje si no existe ningún log con esos datos.
+     */
     private fun mostrarLogPorFechaYHora() {
         val fecha = ui.pedirInfo("Introduce la fecha que quieras buscar Logs (formato: dd-MM-yyyy)")
         require(fecha.matches(Regex("""\d{2}-\d{2}-\d{4}"""))) { "La fecha debe tener el formato dd-MM-yyyy" }
@@ -145,6 +192,12 @@ class Aplicacion(
         }
     }
 
+    /**
+     * Solicita al usuario una fecha y una hora para eliminar un log específico.
+     *
+     * Valida los formatos y solicita el tipo de log a eliminar.
+     * Muestra un mensaje confirmando la eliminación o indicando que no se encontró el log.
+     */
     private fun eliminarLogPorFechaYHora() {
         val fecha = ui.pedirInfo("Introduce la fecha que quieras eliminar Logs (formato: dd-MM-yyyy)")
         require(fecha.matches(Regex("""\d{2}-\d{2}-\d{4}"""))) { "La fecha debe tener el formato dd-MM-yyyy" }
@@ -161,6 +214,12 @@ class Aplicacion(
         }
     }
 
+    /**
+     * Solicita al usuario una fecha para eliminar todos los logs de dicha fecha.
+     *
+     * Valida el formato y solicita el tipo de log a eliminar.
+     * Muestra un mensaje con la cantidad de logs eliminados o si no se encontraron logs.
+     */
     private fun eliminarLogPorFecha() {
         val fecha = ui.pedirInfo("Introduce la fecha que quieras eliminar Logs (formato: dd-MM-yyyy)")
         require(fecha.matches(Regex("""\d{2}-\d{2}-\d{4}"""))) { "La fecha debe tener el formato dd-MM-yyyy" }
@@ -174,6 +233,12 @@ class Aplicacion(
         }
     }
 
+    /**
+     * Solicita al usuario una fecha para eliminar todos los logs de dicha fecha.
+     *
+     * Valida el formato y solicita el tipo de log a eliminar.
+     * Muestra un mensaje con la cantidad de logs eliminados o si no se encontraron logs.
+     */
     private fun eliminarLogPorHora() {
         val hora = ui.pedirInfo("Introduce la hora que quieras eliminar Logs (formato: HH:mm:ss)")
         require(hora.matches(Regex("""\d{2}:\d{2}:\d{2}"""))) { "La hora debe tener el formato HH:mm:ss" }
@@ -187,6 +252,11 @@ class Aplicacion(
         }
     }
 
+    /**
+     * Muestra todos los logs guardados en la base de datos, según el tipo seleccionado por el usuario.
+     *
+     * Muestra un mensaje si no hay logs almacenados.
+     */
     private fun mostrarLogs() {
         val tipo = ui.pedirTipoLog()
         val lista = logsDaoService.obtenerLogs(tipo)
@@ -199,45 +269,4 @@ class Aplicacion(
 
 
 }
-
-
-
-    /*fun iniciar(numero1: String, numero2: String, op: String) {
-        val triple = manejarDatos(numero1, numero2, op)
-        val num1 = triple.first
-        val num2 = triple.second
-        val operador = triple.third
-        ui.pausar()
-
-        var registro = ""
-        try {
-            val lineaResultado = gestorOperaciones.realizarOperacion(num1, num2, operador)
-            ui.mostrar(lineaResultado)
-            registro = "OPERACIÓN - " + lineaResultado
-        } catch (e: Exception) {
-            ui.mostrarError(e.message ?: "Se ha producido un error!")
-            registro = "ERROR - " + e.message.toString()
-        } finally {
-            //gestorLog.añadirRegistro(rutaFichero, registro)
-        }
-
-        if (ui.preguntar()) {
-            iniciar()
-        } else{
-            ui.pausar()
-            ui.limpiarPantalla()
-        }
-
-
-    }*/
-
-    /*private fun manejarDatos(num1: String, num2: String, operador: String): Triple<Double, Double, Operadores>{
-        val numero1 = num1.toDoubleOrNull() ?: throw IllegalArgumentException("Valor no válido")
-        val numero2 = num2.toDoubleOrNull() ?: throw IllegalArgumentException("Valor no válido")
-        val op = Operadores.getOperador(operador[0]) ?: throw IllegalArgumentException("Operador no válido")
-
-        return Triple(numero1, numero2, op)
-    }*/
-
-
 
