@@ -26,6 +26,10 @@ class Consola : IEntradaSalida {
         return pedirInfo(msj).toIntOrNull()
     }
 
+    override fun pedirOpcion(msj: String): Int {
+        return pedirInfo(msj).toIntOrNull() ?: 0
+    }
+
     override fun preguntar(msj: String): Boolean {
         do {
             val respuesta = pedirInfo(msj).lowercase()
