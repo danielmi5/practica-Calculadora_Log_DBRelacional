@@ -16,4 +16,10 @@ abstract class Log {
         this.fecha = fecha
         this.hora = hora
     }
+
+    override fun toString(): String {
+        return "Log - ${Time.formatearFecha(fecha)} - $hora ===>"
+    }
+
+    abstract fun obtenerLog(): String
 }

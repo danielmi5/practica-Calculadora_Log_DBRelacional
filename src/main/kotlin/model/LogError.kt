@@ -8,10 +8,15 @@ class LogError(
 ) : Log(fecha, hora) {
 
     override fun toString(): String {
-        return "${this::class.simpleName?.replace("Log", "")} | $fecha | $hora | --> $msjError"
+        return "${super.toString().replace("Log", nombreClase?: "Error")} $msjError"
+    }
+
+    override fun obtenerLog(): String {
+        return msjError
     }
 
     companion object {
+        val nombreClase = LogError::class.simpleName?.replace("Log", "")
         fun crear(msjError: String): LogError {
             val (fecha, hora) = Time.obtenerFechayHoraActualF()
             return LogError(msjError, fecha, hora)

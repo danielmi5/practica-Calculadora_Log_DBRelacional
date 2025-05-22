@@ -1,6 +1,8 @@
-package es.iesraprog2425.pruebaes.model
+package es.iesraprog2425.pruebaes.service
 
-class Calculadora : RealizarOperaciones {
+import es.iesraprog2425.pruebaes.model.Operadores
+
+class CalculadoraService : RealizarOperacionesService {
     override fun realizarCalculo(numero1: Double, operador: Operadores, numero2: Double): Double {
         return when (operador) {
             Operadores.SUMA -> numero1 + numero2

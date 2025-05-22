@@ -1,11 +1,11 @@
 package es.iesraprog2425.pruebaes.service
 
 import es.iesraprog2425.pruebaes.app.InfoCalcException
+import es.iesraprog2425.pruebaes.model.LogOperacion
 import es.iesraprog2425.pruebaes.model.Operadores
-import es.iesraprog2425.pruebaes.model.RealizarOperaciones
 import es.iesraprog2425.pruebaes.ui.IEntradaSalida
 
-class GestorOperaciones(private val ui: IEntradaSalida, private val calculador: RealizarOperaciones) : ServiceOperaciones{
+class GestorOperacionesService(private val ui: IEntradaSalida, private val calculador: RealizarOperacionesService) : OperacionesService{
     override fun pedirNumero(msj: String, msjError: String): Double {
         return ui.pedirDouble(msj) ?: throw InfoCalcException(msjError)
     }
@@ -17,12 +17,13 @@ class GestorOperaciones(private val ui: IEntradaSalida, private val calculador: 
         pedirNumero("Introduce el segundo número: ", "El segundo número no es válido!"))
 
 
-    override fun realizarOperacion(): String {
+    override fun realizarOperacion(): LogOperacion {
         val (num1, op, num2) = pedirInfo()
-        return "$num1 ${op.simbolos[0]} $num2 = %.2f".format(calculador.realizarCalculo(num1, op, num2))
+        return LogOperacion.crear(num1, op, num2, calculador.realizarCalculo(num1, op, num2))
+        //"$num1 ${op.simbolos[0]} $num2 = %.2f".format(calculador.realizarCalculo(num1, op, num2))
     }
 
-    override fun realizarOperacion(num1: Double, num2: Double, op: Operadores): String{
-        return "$num1 ${op.simbolos[0]} $num2 = %.2f".format(calculador.realizarCalculo(num1, op, num2))
+    override fun realizarOperacion(num1: Double, num2: Double, op: Operadores): LogOperacion{
+        return LogOperacion.crear(num1, op, num2, calculador.realizarCalculo(num1, op, num2))
     }
 }

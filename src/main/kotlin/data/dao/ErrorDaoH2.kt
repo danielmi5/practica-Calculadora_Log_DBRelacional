@@ -3,12 +3,11 @@ package es.iesraprog2425.pruebaes.data.dao
 import data.dao.IDao
 import es.iesraprog2425.pruebaes.model.LogError
 import es.iesraprog2425.pruebaes.model.LogOperacion
-import es.iesraprog2425.pruebaes.model.Operadores
 import java.sql.SQLException
 import java.sql.SQLTimeoutException
 import javax.sql.DataSource
 
-class ErrorDao(private val ds: DataSource) : IDao<LogError>{
+class ErrorDaoH2(private val ds: DataSource) : IDao<LogError>{
     override fun crear(operacion: LogError) {
         val sql = "INSERT INTO ERROR (fecha, hora, msjError) VALUES (?, ?, ?)"
         try {
