@@ -12,6 +12,8 @@ Capa data creada con el object dataSource que gestiona la conexión con la base 
 
 [commit](https://github.com/danielmi5/practica-Calculadora_Log_DBRelacional/commit/6b6432a03c32633119bc2ec694f584548bca5963#diff-1dafba550b2f9f0c5fc11a1a83c59e095f18d79627034c67b1e78fba9325397c)
 
+---
+
 ### Creación del paquete data con dao y db
 
 He creado el paquete data, cuyo propósito es manejar todo el acceso y gestión de datos provenientes de la base de datos. Este paquete está dividido en dos subcarpetas: dao y db.
@@ -122,11 +124,13 @@ object Time {
 ```
 ---
 
-## 2. commit
+## 2. Commit
 
 Patrón DAO aplicado y sus servicos también. Arregladas las clases LOG. Enum class Mes creada y Operadores mejorada. En el object Time métodos añadidos
 
 [commit](https://github.com/danielmi5/practica-Calculadora_Log_DBRelacional/commit/59b67280ce98206eb711fe3cad5755a55f73e2a9)
+
+---
 
 ### Patrón DAO implementado
 
@@ -135,3 +139,127 @@ Patrón DAO aplicado y sus servicos también. Arregladas las clases LOG. Enum cl
 ### Entidades arregladas (Log)
 
 ### Paquete utils más métodos
+
+---
+
+## 3. Commit
+
+Me he encargado de arreglar la estructura del proyecto, la organización y el código. Las clases que ya estaban hechas. He hecho el main instanciando cada clase necesaria. He modificado mucho código disperso.
+
+[commit](https://github.com/danielmi5/practica-Calculadora_Log_DBRelacional/commit/b088de171ca6cc1ab490d339e36addffab6a1165)
+
+### Nueva estructura
+
+He convertido calculadora en un servicio, que implementa su anterior interfaz pero como servicio también.
+
+---
+
+## 4. Commit
+
+Object BaseDatos implementado que se encarga de inicializar la base de datos. Errores arreglados y base de datos correcta.
+
+[commit](https://github.com/danielmi5/practica-Calculadora_Log_DBRelacional/commit/77e86a320fe4a5729cd17c2a312a0277d3bd51ee)
+
+### Object BaseDatos
+
+```kotlin
+import data.db.DataSource
+import java.io.File
+
+object BaseDatos {
+    private const val SCRIPT_SQL = "./src/main/resources/scriptBD.sql"
+    private const val SCRIPT_BORRADO_SQL = "./src/main/resources/scriptBorradoBD.sql"
+
+    fun crearBaseDeDatos(borrarDatos: Boolean = false) {
+        if (borrarDatos) {
+            val script = File(SCRIPT_BORRADO_SQL).readText()
+            DataSource.obtenerDataSource().connection.use {
+                it.createStatement().use {
+                    it.execute(script)
+                }
+            }
+        }
+
+
+        val script = File(SCRIPT_SQL).readText()
+        DataSource.obtenerDataSource().connection.use {
+            it.createStatement().use {
+                it.execute(script)
+
+            }
+        }
+
+
+    }
+}
+```
+
+El objeto BaseDatos se encarga de inicializar y preparar la base de datos para la aplicación. Tiene dos scripts SQL definidos: uno para crear la estructura necesaria (scriptBD.sql) y otro para limpiar la base de datos (scriptBorradoBD.sql). El método crearBaseDeDatos acepta un parámetro opcional borrarDatos que, si es verdadero, primero ejecuta el script de borrado para limpiar la base de datos antes de crear la base de datos nuevamente.
+
+Para ejecutar los scripts, el método lee el contenido de los archivos SQL como texto y luego obtiene una conexión a la base de datos a través del DataSource. Usa use para asegurarse de que la conexión y los statements se cierren automáticamente una vez ejecutados, evitando fugas de recursos. De esta forma, garantiza que la base de datos quede siempre en el estado esperado, ya sea limpia o solo creada, antes de que la aplicación comience a trabajar con ella.
+
+Los scripts se encuentran en src/main/resources.
+
+
+## 5. Commit 
+
+He creado diferentes métodos en Aplicación para la gestión del menú y submenú. Y he declarado los métodos utilizados en el submenú. También he creado un nuevo servicio global `LogDaoService` que implementa una interfaz para los servicios DAO, que inyecta estos dos (IOperacionDaoService y IErrorDaoService). Y estos los he eliminado de la inyección en Aplicación y he añadido a LogDaoService.
+
+[commit](https://github.com/danielmi5/practica-Calculadora_Log_DBRelacional/commit/4fcdfd696df5417044f95c319833c5dc1df3b7c4)
+
+### Servicio global para los DAO
+
+He implementado la interfaz ``ILogDaoService``. Esta interfaz define un conjunto de métodos para trabajar con registros de logs en general, sin importar si son de errores o de operaciones.
+
+Esta clase implementa la interfaz ILogDaoService y funciona como un servicio que unifica los accesos a dos DAOs específicos: uno para errores (errorDao) y otro para operaciones (operacionDao). Estos son inyectados en él, y esto le permite delegar las operaciones específicas a cada DAO correspondiente, mientras se encarga de combinar y ordenar los resultados antes de entregarlos a la Aplicacion.
+
+```kotlin
+class LogDaoService(private val errorDao: IErrorDaoService, private val operacionDao: IOperacionDaoService) : ILogDaoService {
+    override fun obtenerLogsPorFecha(fecha: String): List<Log> {
+        val errores = errorDao.obtenerErrorPorFecha(fecha)
+        val operaciones = operacionDao.obtenerOperacionPorFecha(fecha)
+        return (errores + operaciones).sortedBy { it.hora }
+    }
+
+    override fun obtenerLogsPorHora(hora: String): List<Log> {
+        val errores = errorDao.obtenerErrorPorHora(hora)
+        val operaciones = operacionDao.obtenerOperacionPorHora(hora)
+        return (errores + operaciones).sortedBy { it.fecha }
+    }
+
+    override fun obtenerLogPorFechaYHora(fecha: String, hora: String): Log? {
+        val operacion = operacionDao.obtenerOperacionPorFechaYHora(fecha, hora)
+        if (operacion != null) return operacion
+        val error = errorDao.obtenerErrorPorFechaYHora(fecha, hora)
+        return error
+    }
+
+    override fun eliminarLog(fecha: String, hora: String): Boolean {
+        val eliminaOperacion = operacionDao.eliminarOperacion(fecha, hora)
+        val eliminaError = errorDao.eliminarError(fecha, hora)
+        return eliminaOperacion || eliminaError
+    }
+
+    override fun eliminarLogsPorFecha(fecha: String): Boolean {
+        val eliminaOperacion = operacionDao.eliminarOperacionPorFecha(fecha)
+        val eliminaError = errorDao.eliminarErrorPorFecha(fecha)
+        return eliminaOperacion || eliminaError
+    }
+
+    override fun eliminarLogsPorHora(hora: String): Boolean {
+        val eliminaOperacion = operacionDao.eliminarOperacionPorHora(hora)
+        val eliminaError = errorDao.eliminarErrorPorHora(hora)
+        return eliminaOperacion || eliminaError
+    }
+
+    override fun obtenerLogs(): List<Log> {
+        val errores = errorDao.obtenerErrores()
+        val operaciones = operacionDao.obtenerOperaciones()
+        return (errores + operaciones).sortedBy { it.fecha }
+    }
+
+}
+```
+
+### Menú Aplicación
+
