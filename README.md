@@ -138,6 +138,13 @@ Patrón DAO aplicado y sus servicos también. Arregladas las clases LOG. Enum cl
 
 ### Entidades arregladas (Log)
 
+### Dependencia HikariCP
+
+Me faltaba la dependencia de HikariCP, para poder utilizarlo como pool de conexiones, así que la añadí al ``‎build.gradle.kts``:
+```kotlin
+implementation("com.zaxxer:HikariCP:5.1.0")
+```
+
 ### Paquete utils más métodos
 
 ---
@@ -263,3 +270,162 @@ class LogDaoService(private val errorDao: IErrorDaoService, private val operacio
 
 ### Menú Aplicación
 
+```kotlin
+    fun iniciar(){
+        var salir = false
+        while (!salir) {
+            ui.mostrar("""
+                <<< Menú Principal >>>
+                1. Ejecutar Calculadora
+                2. Gestionar Logs
+                3. Salir
+            """.trimIndent())
+            when (ui.pedirOpcion("Elige una opción >> ")) {
+                1 -> ejecutarCalculadora()
+                2 -> menuGestionarLogs()
+                3 -> salir = true
+                else -> ui.mostrarError("Opción equivocada")
+            }
+        }
+    }
+
+```
+
+Esta es la función principal de la aplicación. Muestra un menú y da a elegir 3 opciones: Ejecutar la calculadora (llama a ejecutarCalculadora()), gestionar los logs (llama a menuGestionarLogs()) y salir de la aplicación.
+
+```kotlin
+    private fun ejecutarCalculadora() {
+        ui.pausar()
+        var logActual: Log? = null
+        do {
+            try {
+                ui.limpiarPantalla()
+                val logResultado = gestorOperaciones.realizarOperacion()
+                ui.mostrar(logResultado.obtenerLog())
+                logActual = logResultado
+            } catch (e: NumberFormatException) {
+                ui.mostrarError(e.message ?: "Se ha producido un error!")
+                logActual = LogError.crear(e.message.toString())
+            } catch (e: InfoCalcException) {
+                ui.mostrarError(e.message ?: "Se ha producido un error!")
+                logActual = LogError.crear(e.message.toString())
+
+            } catch (e: Exception) {
+                ui.mostrarError(e.message ?: "Se ha producido un error!")
+                logActual = LogError.crear(e.message.toString())
+            } finally {
+                when(logActual){
+                    is LogOperacion -> operacionDaoService.crearOperacion(logActual)
+                    is LogError -> errorDaoService.crearError(logActual)
+                }
+            }
+        } while (ui.preguntar())
+        ui.limpiarPantalla()
+    }
+```
+
+Esto es la función iniciar() anterior a la actualización a base de datos. Ahora está actualizada con el menú y lista para la base de datos. En ``ejecutarCalculadora()``, se encapsula la lógica para realizar operaciones matemáticas usando el componente gestorOperaciones. Cualquier resultado que se complete se convierte en un objeto LogOperacion, mientras que los errores generados durante la operación se convierten en LogError. Ahora en vez de una linea de mensaje, se utilizan las entidades Log (sus métodos tambien) y la lógica respecto a la base de datos (llamadas a DaoServices).
+
+```kotlin
+
+    private fun menuGestionarLogs() {
+        var salir = false
+        while (!salir) {
+            ui.mostrar("""
+                <<< Gestión Logs >>>
+                1. Obtener logs por fecha
+                2. Obtener logs por hora
+                3. Obtener log por fecha y hora
+                4. Eliminar log por fecha y hora
+                5. Eliminar logs por fecha
+                6. Eliminar logs por hora
+                7. Obtener todos los logs
+                8. Salir
+            """.trimIndent())
+            when (ui.pedirOpcion("Elige una opción")) {
+                1 -> mostrarLogPorFecha()
+                2 -> mostrarLogPorHora()
+                3 -> mostrarLogPorFechaYHora()
+                4 -> eliminarLogPorFechaYHora()
+                5 -> eliminarLogPorFecha()
+                6 -> eliminarLogPorHora()
+                7 -> mostrarLogs()
+                8 -> salir = true
+                else -> ui.mostrarError("Opción equivocada")
+            }
+            ui.limpiarPantalla()
+        }
+    }
+
+    private fun mostrarLogPorFecha() {}
+    private fun mostrarLogPorHora() {}
+    private fun mostrarLogPorFechaYHora() {}
+    private fun eliminarLogPorFechaYHora() {}
+    private fun eliminarLogPorFecha() {}
+    private fun eliminarLogPorHora() {}
+    private fun mostrarLogs() {}
+
+
+}
+```
+
+El método ``menuGestionarLogs()`` ofrece un menú secundario dedicado exclusivamente a la consulta y eliminación de registros. A través de opciones enumeradas, permite al usuario buscar logs por fecha u/y hora, además de poder eliminar registros bajo esos mismos criterios. También permite mostrar todos los logs almacenados. Estas opciones están delegadas a métodos auxiliares, esots métodos están declarados (todavía sin lógica).
+
+
+## Último Commit
+
+Hice la lógica del submenú de logs de cada opción. Y con estos cambios tuve que moficar los métodos de los DAO y de sus servicios para cambiar su lógica.
+
+[Commit](https://github.com/danielmi5/practica-Calculadora_Log_DBRelacional/commit/9aaf2a5db9cf2afff00f41a3155ed8019887481d#diff-1b61b698d955cdd97fc1a49065498c377522316a6e63b10770a8a689977fb316)
+
+### Cambios a la aplicación
+
+Modifiqué algunos fallos de sintaxis.
+
+En ``ejecutar calculadora`` la lógica en el finally de comprobar la eliminé y ahora, llama a crearLog si es nula (nuevo método creado).
+
+Añadí un bloque de try catch en el submenú de gestionar los logs para controlar las posibles excepciones.
+
+Completé la lógica de los métodos del submenú. En caso de necesitar fecha y/u hora, añadí pedir datos por consola para la fecha y hora, además de la lógica pertinente del método que se pida. Se verifica con require si los datos obtenidos (fecha / hora) cumplen con el formato pedido. 
+Y también, pero en todos los métodos, añadi la opción de pedir por tipo del Log (método nuevo de IEntradaSalida). Dando la opción de no pasar nada si no se quiere filtrar.
+
+```kotlin
+override fun pedirTipoLog(): String? {
+        val opciones = listOf("ERROR", "OPERACION")
+        val seleccion = pedirInfo("Selecciona el tipo de log (ERROR o OPERACION | '' Si no quieres 'filtrar')").uppercase().replace("Ó","O")
+        return if (seleccion in opciones) seleccion else null
+    }
+```
+
+### Cambios a los DAO
+
+En el caso de ``ErrorDao`` cambié fallos de sintaxis y, modifiqué el tipo del return y la lógica de los métodos eliminarPorFecha/Hora. Ahora simplemente en vez de devolver un booleano si había eliminado algo, ahora devuelve el número de eliminaciones realizadas para poder manejar este dato desde la app.
+
+Lo mismo ha ocurrido con ``OperacionDao`` modifiqué el tipo del return y la lógica de los métodos eliminarPorFecha/Hora (siguiendo lo mismo que con ErrorDao), además de modificar el tipo del return en la interfaz genérica ``IDao``.
+
+### Cambios a Service
+
+El cambio anterior ha provocado que cambie todos los return de esos métodos eliminar de los serviciosDao y sus interfaces a Int. No ha afectado a la lógica de los servicios espécificos (ErrorDaoService y OperacionDaoService). Sin embargo, he tenido que cambiar un poco la lógica de los métodos de ``LogDaoService`` (simplemente sumar correctamente los números de lo que devuelven) y sintaxis.
+
+También, por añadir la posibilidad de filtrar las operaciones de consulta y eliminación, he tenido que añadir lógica que verifique antes de realizar la llamada al servicio DAO específico, si coincide con el tipo buscado (en caso de nulo, lo es).
+
+- Por ejemplo:
+
+```kotlin
+override fun eliminarLogsPorHora(hora: String, tipo: String?): Int {
+        val eliminaOperacion = if (tipo == null || tipo == "OPERACION") operacionDao.eliminarOperacionPorHora(hora) else 0
+        val eliminaError = if (tipo == null || tipo == "ERROR") errorDao.eliminarErrorPorHora(hora) else 0
+        return eliminaOperacion + eliminaError
+```
+En este caso, antes de eliminar comprueba si el tipo es nulo o si el tipo coincide con el Log que maneja. Si coincide llama al método de su serviceDao, sino devuelve 0 directamente. Y devuelve la suma del número de ambos.
+
+Añadí a su vez un método para crear Logs, dependiendo del tipo de Log que reciba ejecuta una llamada u otra.
+
+```kotlin
+override fun crearLog(log: Log) {
+        when(log){
+            is LogOperacion -> operacionDao.crearOperacion(log)
+            is LogError -> errorDao.crearError(log)
+        }
+    }
+```
