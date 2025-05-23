@@ -134,9 +134,41 @@ Patrón DAO aplicado y sus servicos también. Arregladas las clases LOG. Enum cl
 
 ### Patrón DAO implementado
 
+    
+
 ### Lógica de los servicios DAO
 
+Cada método de las clases DAO encapsula una consulta SQL específica. Por ejemplo, el método crear inserta una nueva operación en la base de datos, mientras que obtenerPorFecha, obtenerPorHora, y obtenerPorFechaYHora permiten recuperar operaciones filtradas según segun parámetros. Además, hay métodos como eliminar, eliminarPorFecha y eliminarPorHora que se encargan de borrar registros según parámetros dados. Todos los métodos manejan posibles errores SQL lanzando excepciones detalladas, lo que permite que el sistema controle adecuadamente los fallos durante el acceso a la base de datos.
+
+Por ejemplo: 
+https://github.com/danielmi5/practica-Calculadora_Log_DBRelacional/blob/7e465de5e6d21f88b035376b36da316cda696e97/src/main/kotlin/data/dao/OperacionDaoH2.kt#L24-L41
+
+Está utilizando una sentencia SQL predefinida. Esta operación se realiza mediante un PreparedStatement que permite parametrizar la consulta SQL para evitar errores y vulnerabilidades como la inyección SQL. Se obtiene una conexión desde el DataSource utilizado, se prepara la sentencia con los campos necesarios (fecha, hora, num1, operador, num2, resultado) y se asignan los valores extraídos del objeto LogOperacion pasado como argumento. Luego, se ejecuta la inserción utilizando stmt.execute(), y gracias al uso de bloques use, tanto la conexión como el statement se cierran automáticamente al finalizar, gestionando adecuadamente los recursos. Y todo esto se controla mediante un try catch para enviar mensajes de error personalizados.
+Todos los métodos DAO siguen más o menos la misma estructura, cambiando la lógica.
+
 ### Entidades arregladas (Log)
+
+En la clase abstracta Log he añadido 2 constructores. El primer constructor genera la fecha y la hora de la creación del log y se lo asigna a fecha y hora, este caso es para cuando se crean los log a partir de la ejecución de la calculadora. El segundo constructor es cuando se pasa una fecha y una hora ya definida, este caso es para cuando se obtienen los log desde la base de datos.
+
+```kotlin
+abstract class Log {
+    val fecha: String
+    val hora: String
+
+    constructor() {
+        val fechaYHora = Time.obtenerFechayHoraActualF()
+        this.fecha = fechaYHora.first
+        this.hora = fechaYHora.second
+    }
+
+    constructor(fecha: String, hora: String) {
+        this.fecha = fecha
+        this.hora = hora
+    }
+}
+```
+
+En las subclases LogError y LogOperacion, las adapto al cambio anterior mencionado de su clase padre. Pasando por el constructor primario todas sus propiedades junto a una fecha y una hora (esto para el primer constructor de Log). También he creado un método estático crear() que recibe como parámetros los datos del Log específico y dentro mediante Time. genera la fecha y hora actuales, y devuelve una instancia de Log de ese tipo pasandole al constructor los parámetros, fecha y hora generadas. Tamién he personalizado más el método toString(). Más en adelante se mejoran estas clases.
 
 ### Dependencia HikariCP
 
@@ -147,6 +179,14 @@ implementation("com.zaxxer:HikariCP:5.1.0")
 
 ### Paquete utils más métodos
 
+El object Time, tiene 3 métodos nuevos.
+
+- obtenerFechaActual(): Devuelve un LocalDateTime.now()
+- obtenerFechayHoraActualF(): Devuelve un par, siendo el primer valor la fecha y como segundo la hora.
+- formatearFecha(fecha: String): Formatea una fecha con formato "dd-MM-yyyy" a "dd de "mes" sw "yyyy"".
+
+También añadí una variable privada nueva (formateoFechaSql) --> dd-MM-yyyy
+
 ---
 
 ## 3. Commit
@@ -155,9 +195,31 @@ Me he encargado de arreglar la estructura del proyecto, la organización y el c�
 
 [commit](https://github.com/danielmi5/practica-Calculadora_Log_DBRelacional/commit/b088de171ca6cc1ab490d339e36addffab6a1165)
 
+### Main preparado
+
+```kotlin
+    val ui = Consola()
+    val calculadora = CalculadoraService()
+    val gestorOperaciones = GestorOperacionesService(ui,calculadora)
+    val ds = DataSource.obtenerDataSource()
+    val operacionDao = OperacionDaoH2(ds); val errorDao = ErrorDaoH2(ds)
+    val operacionDaoService = OperacionDaoService(operacionDao); val errorDaoService = ErrorDaoService(errorDao)
+    val app = Aplicacion(gestorOperaciones, ui, operacionDaoService, errorDaoService)
+
+    try {
+        app.iniciar()
+    } catch (e: Exception){
+        ui.mostrar("ERROR CRÍTICO")
+    }
+
+    ui.mostrar("\nCALCULADORA SIN BATERÍA")
+```
+
+El main instancia y conecta los componentes principales de la aplicación siguiendo una arquitectura modular. Primero se crean la interfaz de usuario (Consola), el servicio de cálculo (CalculadoraService) y el gestor de operaciones que los une. Luego se configura la conexión a la base de datos mediante DataSource, y se instancian los DAOs (OperacionDaoH2 y ErrorDaoH2) usando dicha conexión. Estos DAOs se encapsulan en servicios (OperacionDaoService y ErrorDaoService) que se encargan de aplicar la lógica de negocio antes de acceder a los datos. Finalmente, se construye la clase principal Aplicacion, inyectando todas las dependencias necesarias, y se inicia su ejecución con app.iniciar(). Si ocurre una excepción crítica durante la ejecución, se muestra un mensaje de error y finaliza el programa.
+
 ### Nueva estructura
 
-He convertido calculadora en un servicio, que implementa su anterior interfaz pero como servicio también.
+Para mejorar la organización del proyecto y seguir una arquitectura más limpia y modular, he realizado una reestructuración: la clase ``Calculadora`` ha sido convertida en un servicio, siguiendo el patrón de diseño de capas. Originalmente, esta clase se encontraba dentro del paquete model, lo cual no era buena idea ya que el paquete model debe contener únicamente representaciones de datos o entidades, no lógica de negocio. Entonces, he convertido calculadora en un servicio, que implementa su anterior interfaz pero como servicio también. De esta manera el código se vuelve más escalable y coherente.
 
 ---
 
@@ -429,3 +491,7 @@ override fun crearLog(log: Log) {
         }
     }
 ```
+
+---
+
+Tras este commit se realizó la documentación del código.
